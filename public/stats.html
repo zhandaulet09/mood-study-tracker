@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Statistics – Mood & Study Tracker</title>
+</head>
+<body>
+  <h1>Statistics</h1>
+
+  <p><a href="index.html">Back to Home</a></p>
+
+  <button id="loadStatsBtn">Load My Statistics</button>
+  <pre id="statsOutput"></pre>
+
+  <script>
+    function ensureAuth() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please login first.");
+        window.location.href = "login.html";
+        return false;
+      }
+      return true;
+    }
+
+    function getUserId() {
+      return localStorage.getItem("userId");
+    }
+
+    async function loadStats() {
+      if (!ensureAuth()) return;
+
+      const userId = getUserId();
+      if (!userId) {
+        alert("No userId stored. Please login again.");
+        return;
+      }
+
+      const res = await fetch(`/api/stats/summary?userId=${userId}`);
+      const data = await res.json();
+
+      document.getElementById("statsOutput").textContent =
+        JSON.stringify(data, null, 2);
+    }
+
+    document.getElementById("loadStatsBtn").addEventListener("click", loadStats);
+  </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Entries – Mood & Study Tracker</title>
+</head>
+<body>
+  <h1>Entries</h1>
+
+  <p><a href="index.html">Back to Home</a></p>
+
+  <h2>Create new entry</h2>
+  <form id="entryForm">
+    <div>
+      <label>Date:
+        <input type="date" id="date" required />
+      </label>
+    </div>
+    <div>
+      <label>Study minutes:
+        <input type="number" id="studyMinutes" value="120" required />
+      </label>
+    </div>
+    <div>
+      <label>Sleep hours:
+        <input type="number" id="sleepHours" value="7" required />
+      </label>
+    </div>
+    <div>
+      <label>Mood (1–5):
+        <input type="number" id="mood" min="1" max="5" value="4" required />
+      </label>
+    </div>
+    <div>
+      <label>Subjects (simple example):
+        <input type="text" id="subject1" placeholder="Databases" />
+        <input type="number" id="subject1Minutes" placeholder="120" />
+      </label>
+    </div>
+    <div>
+      <label>Tags (comma separated):
+        <input type="text" id="tags" placeholder="exam, focused" />
+      </label>
+    </div>
+    <button type="submit">Create Entry</button>
+  </form>
+
+  <p id="createMessage"></p>
+
+  <h2>Existing entries</h2>
+  <button id="loadBtn">Load Entries</button>
+  <pre id="entriesOutput"></pre>
+
+  <script>
+    function getToken() {
+      return localStorage.getItem("token");
+    }
+
+    function ensureAuth() {
+      if (!getToken()) {
+        alert("Please login first.");
+        window.location.href = "login.html";
+        return false;
+      }
+      return true;
+    }
+
+    ensureAuth();
+
+    const form = document.getElementById("entryForm");
+    const msg = document.getElementById("createMessage");
+    const output = document.getElementById("entriesOutput");
+    const loadBtn = document.getElementById("loadBtn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!ensureAuth()) return;
+
+      const token = getToken();
+
+      const dateValue = document.getElementById("date").value;
+      const studyMinutes = Number(document.getElementById("studyMinutes").value);
+      const sleepHours = Number(document.getElementById("sleepHours").value);
+      const mood = Number(document.getElementById("mood").value);
+      const subjectName = document.getElementById("subject1").value || "Databases";
+      const subjectMinutes = Number(document.getElementById("subject1Minutes").value || 120);
+      const tagsStr = document.getElementById("tags").value;
+      const tags = tagsStr ? tagsStr.split(",").map(t => t.trim()).filter(Boolean) : [];
+
+      try {
+        const res = await fetch("/api/entries", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({
+            date: dateValue,
+            studyMinutes,
+            sleepHours,
+            mood,
+            subjects: [
+              { name: subjectName, minutes: subjectMinutes }
+            ],
+            tags
+          }),
+        });
+
+        if (!res.ok) {
+          msg.textContent = "Failed to create entry.";
+          return;
+        }
+
+        msg.textContent = "Entry created successfully.";
+      } catch (err) {
+        console.error(err);
+        msg.textContent = "Error creating entry.";
+      }
+    });
+
+    async function loadEntries() {
+      if (!ensureAuth()) return;
+      const token = getToken();
+
+      const res = await fetch("/api/entries", {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      });
+      const data = await res.json();
+
+      output.textContent = JSON.stringify(data, null, 2);
+    }
+
+    loadBtn.addEventListener("click", loadEntries);
+  
+    loadEntries();
+  </script>
+</body>
+</html>

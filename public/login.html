@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Login – Mood & Study Tracker</title>
+</head>
+<body>
+  <h1>Login</h1>
+
+  <form id="loginForm">
+    <div>
+      <label>Username:
+        <input type="text" id="username" required />
+      </label>
+    </div>
+    <div>
+      <label>Password:
+        <input type="password" id="password" required />
+      </label>
+    </div>
+    <button type="submit">Login</button>
+  </form>
+
+  <p id="message"></p>
+
+  <p><a href="index.html">Back to Home</a></p>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const msg = document.getElementById("message");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msg.textContent = "Logging in...";
+
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value,
+          }),
+        });
+
+        if (!res.ok) {
+          msg.textContent = "Login failed.";
+          return;
+        }
+
+        const data = await res.json();
+        
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userId", data.userId);
+        localStorage.setItem("username", data.username);
+
+        msg.textContent = "Login successful!";
+      } catch (err) {
+        console.error(err);
+        msg.textContent = "Error during login.";
+      }
+    });
+  </script>
+</body>
+</html>

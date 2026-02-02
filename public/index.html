@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Mood & Study Tracker – Home</title>
+</head>
+<body>
+  <h1>Daily Mood & Study Tracker</h1>
+
+  <p>Simple web interface for my Advanced Databases (NoSQL) project.</p>
+
+  <ul>
+    <li><a href="login.html">Login</a></li>
+    <li><a href="entries.html">Entries (Create / View / Delete)</a></li>
+    <li><a href="stats.html">Statistics</a></li>
+  </ul>
+
+  <p id="status"></p>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const username = localStorage.getItem("username");
+    const statusEl = document.getElementById("status");
+
+    if (token && username) {
+      statusEl.textContent = "Logged in as: " + username;
+    } else {
+      statusEl.textContent = "Not logged in.";
+    }
+  </script>
+</body>
+</html>
