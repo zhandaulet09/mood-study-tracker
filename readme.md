@@ -62,6 +62,7 @@ npm install
 node server.js
 
 3. Open in browser:
+   
 http://localhost:3000/index.html
 
 http://localhost:3000/login.html
@@ -73,4 +74,5 @@ http://localhost:3000/stats.html
 ## Contribution
 
 This project was completed individually by one student.
+
 
